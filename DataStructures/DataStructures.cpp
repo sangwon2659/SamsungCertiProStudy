@@ -220,6 +220,164 @@ bool priorityQueuePop(int *value)
 
 ////////// Priority Queue End //////////
 
+////////// Hash Start //////////
+
+// 기본적인 절차
+// 1. Hash값을 왼쪽으로 5번 비트연산 시킨다
+// 2. 원본 Hash값을 더한다
+// 3. 한 문자의 ASCII 값을 더한다
+// 4. 위의 결과를 모든 문자에 대해 반복한다
+// 5. 최종 값이 해시테이블의 범위를 벗어나면, 나머지 연산을 취해준다
+
+#define MAX_KEY 64
+#define MAX_DATA 128
+#define MAX_TABLE 4096
+
+typedef struct
+{
+    // char는 끝에 '\0'가 붙기 때문에 +1 해줘야 함
+    char key[MAX_KEY + 1];
+    char data[MAX_DATA + 1];
+} Hash;
+Hash tb[MAX_TABLE];
+
+unsigned long hashKey(const char *str)
+{
+    unsigned long hash = 5381;
+    int c;
+
+    while (c = *str++)
+    {
+        hash = ((hash << 5) + hash + c) % MAX_TABLE;
+    }
+
+    return hash;
+}
+
+bool find(const char *key, char *data)
+{
+    unsigned long h = hashKey(key);
+    int cnt = MAX_TABLE;
+
+    // tb[h].key[0] == 0면 아무것도 없다는 뜻
+    // cnt를 줄여가면서 cnt = 0, 즉 MAX_TABLE만큼 돌리면서 찾아보겠다는 것
+    while (tb[h].key[0] != 0 && cnt--)
+    {
+        // Hash한 Key와 Table의 Key가 맞다면 0이 출력되고 if문 진입
+        if (strcmp(tb[h].key, key) == 0)
+        {
+            strcpy(data, tb[h].data);
+            return true;
+        }
+
+        // h를 하나씩 올려가면서 탐색 (% MAX_TABLE을 함)
+        h = (h + 1) % MAX_TABLE;
+    }
+
+    return false;
+}
+
+bool addData(const char *key, char *data)
+{
+    unsigned long h = hashKey(key);
+
+    while (tb[h].key[0] != 0)
+    {
+        if (strcmp(tb[h].key, key) == 0)
+        {
+            return false;
+        }
+
+        h = (h + 1) % MAX_TABLE;
+    }
+
+    strcpy(tb[h].key, key);
+    strcpy(tb[h].data, data);
+
+    return true;
+}
+
+////////// Hash End //////////
+
+////////// Tree Start //////////
+
+// Preorder(전위)는 Root -> Left -> Right
+// Inorder(중위)는 Left -> Root -> Right
+// PostOrder(후위)는 Left -> Right -> Root
+
+#define MAX_NODE_NUM 10000
+#define MAX_CHILD_NUM 2
+
+typedef struct
+{
+    int parent;
+    int child[MAX_CHILD_NUM];
+} TreeNode;
+TreeNode tree[MAX_NODE_NUM];
+
+int node_num;
+int edge_num;
+int root;
+
+void initTree()
+{
+    for (int i = 0; i <= node_num; ++i)
+    {
+        tree[i].parent = -1;
+        for (int j = 0; j < MAX_CHILD_NUM; ++j)
+        {
+            tree[i].child[j] = -1;
+        }
+    }
+}
+
+void addChild(int parent, int child)
+{
+    int i;
+    // 비어있는 Child 노드 찾기
+    for (i = 0; i < MAX_CHILD_NUM; ++i)
+    {
+        if (tree[parent].child[i] == -1)
+        {
+            break;
+        }
+    }
+
+    tree[parent].child[i] = child;
+    tree[child].parent = parent;
+}
+
+int getRoot()
+{
+    for (int i = 1; i <= node_num; ++i)
+    {
+        if (tree[i].parent == -1)
+        {
+            return i;
+        }
+    }
+
+    return  -1;
+}
+
+void preOrder(int root)
+{
+    int i;
+    int child;
+    printf("%d", root);
+
+    for (i = 0; i < MAX_CHILD_NUM; ++i)
+    {
+        child = tree[root].child[i];
+        if (child != -1)
+        {
+            preOrder(child);
+        }
+    }
+}
+
+////////// Tree End //////////
+
 int main()
 {
     ////////// Stack Start //////////
@@ -274,4 +432,35 @@ int main()
     printf("\n");
 
     ////////// Priority Queue End //////////
+
+    ////////// Hash End //////////
+
+    addData("Samsung", "Electronics");
+    addData("Hyundai", "Motors");
+    addData("SK", "Innovation");
+
+    char hash_return[MAX_DATA + 1];
+    find("Samsung", hash_return);
+    printf("%s\n", hash_return);
+    find("Hyundai", hash_return);
+    printf("%s\n", hash_return);
+    find("SK", hash_return);
+    printf("%s\n", hash_return);
+
+    ////////// Hash End //////////
+
+    ////////// Tree Start //////////
+
+    node_num = 5;
+    edge_num = 4;
+    initTree();
+
+    addChild(1, 2);
+    addChild(1, 3);
+    addChild(2, 4);
+    addChild(3, 5);
+
+    preOrder(getRoot());
+    
+    ////////// Tree End //////////
 }

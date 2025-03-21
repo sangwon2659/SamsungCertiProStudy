@@ -6,8 +6,6 @@ using namespace std;
 int input[MAX_NUM];
 int input_size;
 
-// Ins
-
 void insertionSort()
 {
     int i, j;

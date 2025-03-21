@@ -319,6 +319,8 @@ int node_num;
 int edge_num;
 int root;
 
+// node_num을 받아서 그 개수만큼 트리를 쭉 돌면서
+// 각 노드의 부모와 자식을 -1로 정의
 void initTree()
 {
     for (int i = 0; i <= node_num; ++i)
@@ -374,6 +376,24 @@ void preOrder(int root)
             preOrder(child);
         }
     }
+}
+
+void inOrder(int root)
+{
+    if (root == -1) return;
+
+    inOrder(tree[root].child[0]);
+    printf("%d", root);
+    inOrder(tree[root].child[1]);
+}
+
+void postOrder(int root)
+{
+    if (root == -1) return;
+
+    postOrder(tree[root].child[0]);
+    postOrder(tree[root].child[1]);
+    printf("%d", root);
 }
 
 ////////// Tree End //////////
@@ -461,6 +481,10 @@ int main()
     addChild(3, 5);
 
     preOrder(getRoot());
+    printf("\n");
+    inOrder(getRoot());
+    printf("\n");
+    postOrder(getRoot());
     
     ////////// Tree End //////////
 }

@@ -4,6 +4,7 @@ using namespace std;
 #define MAX_N 100
 
 ////////// Stack Start //////////
+
 int stack_top;
 int stack[MAX_N];
 

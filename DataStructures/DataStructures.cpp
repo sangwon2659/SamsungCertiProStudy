@@ -416,8 +416,8 @@ void dequeInit(int n)
 
 bool isDequeFull()
 {
-    // Front Rear 각각 밀고 당기고 하다보면 꼭 0 & deque_size - 1일 때가 Full이 아닐 수 있음
-    // Rotary 느낌으로 쭉쭉 도는 것이기 때문
+    // Rotary 느낌으로 쭉쭉 도는 것이기 때문에 deque_front == 0 && deque_rear == deque_size - 1일 때 뿐만 아니라
+    // deque_front == deque_rear + 1일 때도 Full인 것
     return ((deque_front == 0 && deque_rear == deque_size - 1) || deque_front == deque_rear + 1);
 }
 
@@ -426,6 +426,7 @@ bool isDequeEmpty()
     return (deque_front == -1);
 }
 
+// 무한루프를 도는 것처럼 돌면서 채워짐 (%를 쓰는 대신 if문으로 구현한 것)
 void insertDequeFront(int value)
 {
     if (isDequeFull())
@@ -449,6 +450,7 @@ void insertDequeFront(int value)
     deque_arr[deque_front] = value;
 }
 
+// 무한루프를 도는 것처럼 돌면서 채워짐 (%를 쓰는 대신 if문으로 구현한 것)
 void insertDequeRear(int value)
 {
     if (isDequeFull())
@@ -494,6 +496,7 @@ int getDequeRear()
     return deque_arr[deque_rear];
 }
 
+// 무한루프를 도는 것처럼 돌면서 채워짐 (%를 쓰는 대신 if문으로 구현한 것)
 void deleteDequeFront()
 {
     if (isDequeEmpty())
@@ -517,6 +520,7 @@ void deleteDequeFront()
     }
 }
 
+// 무한루프를 도는 것처럼 돌면서 채워짐 (%를 쓰는 대신 if문으로 구현한 것)
 void deleteDequeRear()
 {
     if (isDequeEmpty())
@@ -977,9 +981,13 @@ int main()
 
     ////////// Deque End //////////
 
-    dequeInit(1);
-    printf("%d", isDequeEmpty());
-    printf("\n");
+    dequeInit(5);
+    insertDequeFront(1);
+    insertDequeFront(2);
+    insertDequeRear(3);
+    insertDequeFront(4);
+    printf("Deque Front: %d // Deque Rear: %d\n", getDequeFront(), getDequeRear());
+    printf("Is Dequeu Full?: %d\n", isDequeFull());
 
     ////////// Deque End //////////
 

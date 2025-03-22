@@ -399,6 +399,491 @@ void postOrder(int root)
 
 ////////// Tree End //////////
 
+////////// Deque Start //////////
+
+#define DEQUE_MAX 100
+int deque_arr[DEQUE_MAX];
+int deque_front;
+int deque_rear;
+int deque_size;
+
+void dequeInit(int n)
+{
+    deque_front = -1;
+    deque_rear = 0;
+    deque_size = n;
+}
+
+bool isDequeFull()
+{
+    // Front Rear 각각 밀고 당기고 하다보면 꼭 0 & deque_size - 1일 때가 Full이 아닐 수 있음
+    // Rotary 느낌으로 쭉쭉 도는 것이기 때문
+    return ((deque_front == 0 && deque_rear == deque_size - 1) || deque_front == deque_rear + 1);
+}
+
+bool isDequeEmpty()
+{
+    return (deque_front == -1);
+}
+
+void insertDequeFront(int value)
+{
+    if (isDequeFull())
+    {
+        printf("Deque Overflow!\n");
+    }
+
+    if (deque_front == -1)
+    {
+        deque_front = deque_rear = 0;
+    }
+    else if (deque_front == 0)
+    {
+        deque_front = deque_size - 1;
+    }
+    else
+    {
+        deque_front = deque_front - 1;
+    }
+
+    deque_arr[deque_front] = value;
+}
+
+void insertDequeRear(int value)
+{
+    if (isDequeFull())
+    {
+        printf("Deque Overflow!\n");
+    }
+
+    if (deque_front == -1)
+    {
+        deque_front = deque_rear = 0;
+    }
+    else if (deque_rear == deque_size - 1)
+    {
+        deque_rear = 0;
+    }
+    else
+    {
+        deque_rear = deque_rear + 1;
+    }
+
+    deque_arr[deque_rear] = value;
+}
+
+int getDequeFront()
+{
+    if (isDequeEmpty())
+    {
+        printf("Deque Overflow\n");
+        return -1;
+    }
+
+    return deque_arr[deque_front];
+}
+
+int getDequeRear()
+{
+    if (isDequeEmpty() || deque_rear < 0)
+    {
+        printf("Deque Underflow\n");
+        return -1;
+    }
+
+    return deque_arr[deque_rear];
+}
+
+void deleteDequeFront()
+{
+    if (isDequeEmpty())
+    {
+        printf("Deque Underflow!\n");
+        return;
+    }
+
+    if (deque_front == deque_rear)
+    {
+        deque_front = -1;
+        deque_rear = -1;
+    }
+    else if (deque_front == deque_size - 1)
+    {
+        deque_front = 0;
+    }
+    else
+    {
+        deque_front = deque_front + 1;
+    }
+}
+
+void deleteDequeRear()
+{
+    if (isDequeEmpty())
+    {
+        printf("Deque Underflow!\n");
+        return;
+    }
+
+    if (deque_front == deque_rear)
+    {
+        deque_front = -1;
+        deque_rear = -1;
+    }
+    else if (deque_rear == 0)
+    {
+        deque_rear = deque_size - 1;
+    }
+    else
+    {
+        deque_rear = deque_rear - 1;
+    }
+}
+
+////////// Deque End //////////
+
+////////// Map Start //////////
+// 키를 값에 매핑할 수 있는 자료구조이고 중복을 허용하지 않는다
+
+typedef struct MapNode
+{
+    int key;
+    int value;
+    MapNode *left, *right;
+};
+
+// 새로운 Memory를 할당해서 전달받은 Key값과 Value를 저장하고
+// Left, Right는 NULL로 지정
+MapNode *newMapNode(int k, int v)
+{
+    MapNode *temp = (MapNode *)malloc(sizeof(MapNode));
+    temp->key = k;
+    temp->value = v;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+MapNode *currentMapNode;
+
+// Node가 NULL이면 Node를 새로 생성
+// Node가 비어있지 않으면 Key값을 비교해서 왼쪽 또는 오른쪽의 비어있는 Node를
+// 찾아서 거기에 새로 생성
+// 이렇게 하면 오름차순으로 자동 정렬된 상태로 Map을 만들게 된다
+// 이미 Key가 존재하는 경우 (NULL이 아니면서) 새로운 Value값을 넣어준다
+MapNode *putMapRec(MapNode *node, int key, int value)
+{
+    if (node == NULL)
+    {
+        return newMapNode(key, value);
+    }
+
+    if (key < node->key)
+    {
+        node->left = putMapRec(node->left, key, value);
+    }
+    else if (key > node->key)
+    {
+        node->right = putMapRec(node->right, key, value);
+    }
+    else
+    {
+        node->value = value;
+    }
+
+    return node;
+}
+
+void putMap(int key, int value)
+{
+    currentMapNode  = putMapRec(currentMapNode, key, value);
+}
+
+// DFS방식으로 왼쪽으로 쭉쭉 찾아보고
+// 오른쪽으로 쭉쭉 찾아본다
+// 반환 값은 찾은 Key를 가지고 있는 Node의 Value값
+// 만약 찾지 못하면 -1를 반환한다
+int findMapRec(MapNode *node, int key)
+{
+    if (node != NULL)
+    {
+        if (key == node->key)
+        {
+            return node->value;
+        }
+
+        int ret = -1;
+        ret = findMapRec(node->left, key);
+        if (ret != -1)
+        {
+            return ret;
+        }
+
+        ret = findMapRec(node->right, key);
+        if (ret != -1)
+        {
+            return ret;
+        }
+    }
+
+    return -1;
+}
+
+bool containsMap(int key)
+{
+    int ret = findMapRec(currentMapNode, key);
+    if (ret != -1)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+int get (int key)
+{
+    return findMapRec(currentMapNode, key);
+}
+
+MapNode *minValueNodeOfMap (MapNode *node)
+{
+    MapNode *current = node;
+    
+    while (current->left != NULL)
+    {
+        current = current->left;
+    }
+
+    return current;
+}
+
+MapNode *removeMapRec(MapNode *node, int key)
+{
+    if (node == NULL)
+    {
+        return node;
+    }
+
+    if (key < node->key)
+    {
+        node->left = removeMapRec(node->left, key);
+    }
+    else if (key > node->key)
+    {
+        node->right = removeMapRec(node->right, key);
+    }
+    else
+    {
+        // node->left가 NULL이라는 건 remove하고자 하는 Node가
+        // currentSet기준으로 오른쪽에 있는 Node라는 것
+        // 그렇다면 해당 Node의 ->right를 currentMapNode로 지정하고
+        // 해당 Node는 Memory를 Release해주면 된다
+        // Vice Versa
+        if (node->left == NULL)
+        {
+            MapNode *temp = node->right;
+            free(node);
+            return temp;
+        }
+        else if (node->right == NULL)
+        {
+            MapNode *temp = node->left;
+            free(node);
+            return temp;
+        }
+
+        // Node의 ->Left와 ->Right가 둘다 NULL이 아닌 경우는
+        // 맨 처음에 Node로 설정한 Node인 경우
+        // 이때 findMinValueNodeOfNode(node->right)를
+        // 하면 바로 오른쪽에 있는 Node가 반환될 것
+        MapNode *temp = minValueNodeOfMap(node->right);
+
+        // 지우고자 하는 Node의 Key와 Value를 바로 오른쪽 Node의 Key와 Value로 설정을 하고
+        node->key = temp->key;
+        node->value = temp->value;
+
+        // 오른쪽 Node를 지우면서 반환되는 Right Node를 현재의
+        // Node의 오른쪽 Node로 설정해주면 다 해결된다
+        node->right = removeMapRec(node->right, temp->key);
+    }
+
+    return node;
+}
+
+void removeMap(int key)
+{
+    currentMapNode = removeMapRec(currentMapNode, key);
+}
+
+////////// Map End //////////
+
+////////// Set Start //////////
+// 중복을 허용하지 않는 자료구조이며 삽입과 동시에 정렬이 된다
+
+typedef struct SetNode
+{
+    int key;
+    SetNode *left, *right;
+};
+
+// 새로운 Memory를 할당해서 전달받은 Key값을 저장하고
+// Left, Right는 NULL로 지정
+SetNode *newSetNode(int item)
+{
+    SetNode *temp = (SetNode *)malloc(sizeof(SetNode));
+    temp->key = item;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+SetNode *currentSetNode;
+
+// Node가 NULL이면 Node를 새로 생성
+// Node가 비어있지 않으면 Key값을 비교해서 왼쪽 또는 오른쪽의 비어있는 Node를
+// 찾아서 거기에 새로 생성
+// 이렇게 하면 오름차순으로 자동 정렬된 상태로 Set를 만들게 된다
+SetNode *addSetRec(SetNode *node, int key)
+{
+    if (node == NULL)
+    {
+        return newSetNode(key);
+    }
+
+    if (key < node-> key)
+    {
+        node->left = addSetRec(node->left, key);
+    }
+    else if (key > node->key)
+    {
+        node->right = addSetRec(node->right, key);
+    }
+    
+    return node;
+}
+
+void addSet (int key)
+{
+    currentSetNode = addSetRec(currentSetNode, key);
+}
+
+// DFS로 Key가 동일한 Node찾기
+bool findSetRec(SetNode *node, int key)
+{
+    if (node != NULL)
+    {
+        if (key == node->key)
+        {
+            return true;
+        }
+        if (findSetRec(node->left, key))
+        {
+            return true;
+        }
+        if (findSetRec(node->right, key))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool setContains(int key)
+{
+    return findSetRec(currentSetNode, key);
+}
+
+// Left부터 쭉쭉 들어가면서 하나씩 출력해서 나온다
+// Current 기준으로 왼쪽에 있는 Node들은 Left 밖에 없고
+// 오른쪽에 있는 Node들은 Right 밖에 없기 때문에 한번씩만 출력을 하게 된다
+void printAllSet(SetNode *node)
+{
+    if (node != NULL)
+    {
+        printAllSet(node->left);
+        printf("%d", node->key);
+        printAllSet(node->right);
+    }
+}
+
+void printAllSet()
+{
+    printAllSet(currentSetNode);
+}
+
+SetNode *findMinValueNodeOfSet(SetNode *node)
+{
+    SetNode *current = node;
+    
+    while (current->left != NULL)
+    {
+        current = current->left;
+    }
+
+    return current;
+}
+
+SetNode *removeSetRec(SetNode *node, int key)
+{
+    if (node == NULL)
+    {
+        return node;
+    }
+
+    if (key < node->key)
+    {
+        node->left = removeSetRec(node->left, key);
+    }
+    else if (key > node->key)
+    {
+        node->right = removeSetRec(node->right, key);
+    }
+    else
+    {
+        // node->left가 NULL이라는 건 remove하고자 하는 Node가
+        // currentSet기준으로 오른쪽에 있는 Node라는 것
+        // 그렇다면 해당 Node의 ->right를 currentSet로 지정하고
+        // 해당 Node는 Memory를 Release해주면 된다
+        // Vice Versa
+        if (node->left == NULL)
+        {
+            SetNode *temp = node->right;
+            free(node);
+            return temp;
+        }
+        else if (node->right == NULL)
+        {
+            SetNode *temp = node->left;
+            free(node);
+            return temp;
+        }
+
+        // Node의 ->Left와 ->Right가 둘다 NULL이 아닌 경우는
+        // 맨 처음에 Node로 설정한 Node인 경우
+        // 이때 findMinValueNodeOfSet(node->right)를
+        // 하면 바로 오른쪽에 있는 Node가 반환될 것
+        SetNode *temp = findMinValueNodeOfSet(node->right);
+
+        // 지우고자 하는 Node의 Key를 바로 오른쪽 Node의 Key로 설정을 하고
+        node->key = temp->key;
+
+        // 오른쪽 Node를 지우면서 반환되는 Right Node를 현재의
+        // Node의 오른쪽 Node로 설정해주면 다 해결된다
+        node->right = removeSetRec(node->right, temp->key);
+
+        // ... 근데 이렇게까지 복잡하게 해야되나...?
+        // 이해하기 참 힘든 코드임
+    }
+
+    return node;
+}
+
+void removeSet (int key)
+{
+    currentSetNode = removeSetRec(currentSetNode, key);
+}
+
+////////// Set End //////////
+
 int main()
 {
     ////////// Stack Start //////////
@@ -486,6 +971,47 @@ int main()
     inOrder(getRoot());
     printf("\n");
     postOrder(getRoot());
+    printf("\n");
     
     ////////// Tree End //////////
+
+    ////////// Deque End //////////
+
+    dequeInit(1);
+    printf("%d", isDequeEmpty());
+    printf("\n");
+
+    ////////// Deque End //////////
+
+    ////////// Map Start //////////
+
+    currentMapNode = NULL;
+    putMap(2, 5);
+    putMap(5, 10);
+    putMap(20, -1);
+    putMap(40, 6);
+    printf("%d", get(2));
+    printf("\n");
+    removeMap(2);
+    printf("%d", get(2));
+    printf("\n");
+    printf("%d", get(-1));
+    printf("\n");
+
+    ////////// Map End //////////
+
+    ////////// Set Start //////////
+
+    currentSetNode = NULL;
+    addSet(5);
+    addSet(4);
+    addSet(8);
+    addSet(10);
+    addSet(2);
+    removeSet(5);
+
+    printAllSet();
+    printf("\n");
+
+    ////////// Set End //////////
 }

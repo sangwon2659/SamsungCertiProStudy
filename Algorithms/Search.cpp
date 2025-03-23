@@ -5,3 +5,10 @@ int main()
 {
   
 }
+
+/*
+- Binary
+- DFS
+- BFS
+- Parametric
+*/

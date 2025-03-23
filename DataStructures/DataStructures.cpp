@@ -399,6 +399,227 @@ void postOrder(int root)
 
 ////////// Tree End //////////
 
+////////// Graph Start //////////
+// Reference 코드에서의 Graph는 다수의 Vertex를 가지고 있고
+// 각 Vertex는 단순 연결 리스트 구조의 GraphAdjList를 가지고 있어서
+// 해당 List에 Node가 쭉쭉 들어가게 된다
+// 여기에서의 head는 이중 연결 리스트에 구현된 구조와는 다르게
+// head가 비어있지 않고 실제 첫번째 노드인 구조이다
+
+// Graph의 Vertex에 연결된 각 Node를 정의하는 Struct
+typedef struct GraphAdjlistNode
+{
+    int vertex;
+    GraphAdjlistNode *next;
+} graphAdjListNode;
+
+// Graph의 Vertex에 연결된 각 Node를 담는 단방향 LinkedList
+typedef struct GraphAdjList
+{
+    int num_members;
+    GraphAdjlistNode *head;
+    GraphAdjlistNode *tail;
+} graphAdjList;
+
+// Graph의 Struct 그 자체
+typedef struct Graph
+{
+    int num_vertices;
+    GraphAdjList *graphAdjListArr;
+} graph;
+
+// 새로운 Node를 생성하는 함수
+graphAdjListNode *createGraphNode(int v)
+{
+    graphAdjListNode *newNode = (graphAdjListNode *)malloc(sizeof(graphAdjListNode));
+
+    newNode->vertex = v;
+    newNode->next = NULL;
+
+    return newNode;
+}
+
+Graph *createGraph(int n)
+{
+    Graph *graph = (Graph *)malloc(sizeof(Graph));
+
+    graph->num_vertices = n;
+    graph->graphAdjListArr = (graphAdjList *)malloc(n * sizeof(graphAdjList));
+
+    // 각각의 Vertex는 별도의 graphAdjList를 가지고 있기 때문에 각각의 헤드와 테일에 대해 초기화
+    for (int i = 0; i < n; ++i)
+    {
+        graph->graphAdjListArr[i].head = graph->graphAdjListArr[i].tail = NULL;
+        graph->graphAdjListArr[i].num_members = 0;
+    }
+    
+    return graph;
+}
+
+void destroyGraph(Graph *graph)
+{
+    if (graph != NULL)
+    {
+        if (graph->graphAdjListArr)
+        {
+            for (int v = 0; v < graph->num_vertices; v++)
+            {
+                GraphAdjlistNode *graphAdjListPtr = graph->graphAdjListArr[v].head;
+                while (graphAdjListPtr != NULL)
+                {
+                    graphAdjListNode *tmp = graphAdjListPtr;
+                    graphAdjListPtr = graphAdjListPtr->next;
+                    free(tmp);
+                }
+            }
+
+            free(graph->graphAdjListArr);
+        }
+        free(graph);
+    }
+}
+
+// 여기서 src는 잇고자 하는 시작점의 Vertex이고
+// dest는 목적지 Vertex이다
+void addGraphEdge(Graph *graph, int src, int dest)
+{
+    // 우선 목적지 Vertex Node를 생성한다
+    graphAdjListNode *newNode = createGraphNode(dest);
+
+    // 비어있지 않은 graphAdjLustArr에 Node를 넣게되면
+    // 
+    if (graph->graphAdjListArr[src].tail != NULL)
+    {
+        // 여기서 왜 tail->next까지 newNode로 지정하는 건지는 잘 모르곘다....
+        graph->graphAdjListArr[src].tail->next = newNode;
+        graph->graphAdjListArr[src].tail = newNode;
+    }
+    // 비어있는 graphAdjListArr에 Node를 넣게되면
+    // Head와 Tail이 둘 다 해당 새로운 Node를 가르키게끔 한다
+    else
+    {
+        graph->graphAdjListArr[src].head = graph->graphAdjListArr[src].tail = newNode;
+    }
+    graph->graphAdjListArr[src].num_members++;
+
+    newNode = createGraphNode(src);
+    if (graph->graphAdjListArr[dest].tail != NULL)
+    {
+        graph->graphAdjListArr[dest].tail->next = newNode;
+        graph->graphAdjListArr[dest].tail = newNode;
+    }
+    else
+    {
+        graph->graphAdjListArr[dest].head = graph->graphAdjListArr[dest].tail = NULL;
+    }
+    graph->graphAdjListArr[dest].num_members++;
+}
+
+void displayGraph(Graph *graph, int i)
+{
+    graphAdjListNode *adjListPtr = graph->graphAdjListArr[i].head;
+
+    while (adjListPtr != NULL)
+    {
+        printf("%d ", adjListPtr->vertex);
+        adjListPtr = adjListPtr->next;
+    }
+
+    printf("\n");
+}
+
+////////// Graph End //////////
+
+////////// Linked List Start //////////
+// 여기서는 이중 Linked List로 구현함
+// Linked List는 Head가 있고 그 중간에 Node를 추가할 수도 삭제할 수도 있는 구조임
+// Head는 비어있는 Node이고 첫번째의 실제 Node를 가르킴
+// 새로 들어가는 Node는 Head가 가르키는 자리로 바로 들어감
+// (인터넷 보면 구현 방식은 조금씩 다른 것 같음)
+
+typedef struct ListNode
+{
+    int data;
+    ListNode *prev;
+    ListNode *next;
+};
+
+ListNode *createList (int data)
+{
+    ListNode *node = (ListNode *)malloc(sizeof(ListNode));
+
+    node->prev = NULL;
+    node->next = NULL;
+    node->data = data;
+
+    return node;
+}
+
+// Reference에 구현된 코드는 new_node를 사전에 지정한 head 바로 다음에 넣어준다
+ListNode *insertList(ListNode *head, ListNode *new_node)
+{
+    // head와 head의 기존 next_node 사이에 new_node를 넣는 것
+    // 그렇게 하기 위해서는 ListNode *next에 우선 head->next를 저장해놓고
+    // head의 next를 new_node로 한 후에 new_node에 prev & next를 묶어주면 됨
+    ListNode *next  = head->next;
+    head->next = new_node;
+    new_node->next = next;
+    new_node->prev = head;
+
+    // next의 prev도 new_node로 새로 설정해줘야 함
+    if (next != NULL)
+    {
+        next->prev = new_node;
+    }
+
+    return new_node;
+}
+
+int eraseList (ListNode *head, int data)
+{
+    // head는 비어있는 Node이기 때문에 it을 그 바로 다음 Node로 설정한다
+    ListNode *it = head->next;
+    int ret = 0;
+
+    while (it != NULL)
+    {
+        // it-data가 우리가 찾는 것이라면
+        // it의 저장해놓은 후
+        // it을 it->next로 바꿔치기 한 다음에
+        if (it->data == data)
+        {
+            ListNode* prev = it->prev;
+            ListNode* next = it->next;
+            ListNode* tmp = it;
+            it = it->next;
+ 
+            // prev->next를 next로 지정
+            prev->next = next;
+            // next가 NULL이 아니라면 next->prev는 prev로
+            if (next != NULL)
+            {
+                next->prev = prev;
+            }
+             
+            // tmp의 메모리는 놓아주기
+            free(tmp);
+
+            // Reference에는 삭제한 Node의 개수만큼 출력하게 되어있다
+            // 연결리스트는 중복 무관
+            ret++;
+        }
+        // it->data가 우리가 찾는 게 아니라면 다음 Node로 넘어가기
+        else
+        {
+            it = it->next;
+        }
+    }
+
+    return ret;
+}
+
+////////// Linked List End //////////
+
 ////////// Deque Start //////////
 
 #define DEQUE_MAX 100
@@ -892,6 +1113,7 @@ int main()
 {
     ////////// Stack Start //////////
 
+    printf("===========Stack===========\n");
     stackInit();
     for (int i = 0; i < 10; ++i)
     {
@@ -909,6 +1131,7 @@ int main()
 
     ////////// Queue Start //////////
 
+    printf("===========Queue===========\n");
     queueInit();
     for (int i = 0; i < 10; ++i)
     {
@@ -926,6 +1149,7 @@ int main()
 
     ////////// Priority Queue Start //////////
 
+    printf("===========PriorityQueue===========\n");
     priorityQueueInit();
     priorityQueuePush(5);
     priorityQueuePush(8);
@@ -945,6 +1169,7 @@ int main()
 
     ////////// Hash End //////////
 
+    printf("===========Hash===========\n");
     addData("Samsung", "Electronics");
     addData("Hyundai", "Motors");
     addData("SK", "Innovation");
@@ -961,6 +1186,7 @@ int main()
 
     ////////// Tree Start //////////
 
+    printf("===========Tree===========\n");
     node_num = 5;
     edge_num = 4;
     initTree();
@@ -979,8 +1205,61 @@ int main()
     
     ////////// Tree End //////////
 
+    ////////// Graph Start //////////
+
+    printf("===========Graph===========\n");
+    Graph *graph = createGraph(4);
+    addGraphEdge(graph, 0, 1);
+    addGraphEdge(graph, 0, 2);
+    addGraphEdge(graph, 0, 3);
+    addGraphEdge(graph, 1, 2);
+    addGraphEdge(graph, 2, 1);
+    addGraphEdge(graph, 3, 1);
+
+    displayGraph(graph, 0);
+    displayGraph(graph, 1);
+    displayGraph(graph, 2);
+    displayGraph(graph, 3);
+
+    ////////// Graph End //////////
+
+    ////////// Linked List Start //////////
+
+    printf("===========LinkedList===========\n");
+    // head에는 data를 NULL로
+    ListNode *head = createList(NULL);
+    ListNode *node = createList(1);
+    insertList(head, node);
+    node = createList(2);
+    insertList(head, node);
+    node = createList(5);
+    insertList(head, node);
+    node = createList(8);
+    insertList(head, node);
+
+    ListNode *it = head->next;
+    while (it != NULL)
+    {
+        printf("%d //", it->data);
+        it = it->next;
+    }
+    printf("\n");
+
+    eraseList(head, 5);
+
+    it = head->next;
+    while (it != NULL)
+    {
+        printf("%d //", it->data);
+        it = it->next;
+    }
+    printf("\n");
+
+    ////////// Linked List End //////////
+
     ////////// Deque End //////////
 
+    printf("===========Deque===========\n");
     dequeInit(5);
     insertDequeFront(1);
     insertDequeFront(2);
@@ -993,6 +1272,7 @@ int main()
 
     ////////// Map Start //////////
 
+    printf("===========Map===========\n");
     currentMapNode = NULL;
     putMap(2, 5);
     putMap(5, 10);
@@ -1010,6 +1290,7 @@ int main()
 
     ////////// Set Start //////////
 
+    printf("===========Set===========\n");
     currentSetNode = NULL;
     addSet(5);
     addSet(4);

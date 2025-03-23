@@ -126,6 +126,18 @@ void executeCountingSort(int input_size)
 
 ////////// CountingSort End //////////
 
+////////// BubbleSort Start //////////
+
+////////// BubbleSort End //////////
+
+////////// SelectionSort Start //////////
+
+////////// SelectionSort End //////////
+
+////////// MergeSort Start //////////
+
+////////// MergeSort End //////////
+
 void printInput()
 {
     int i;

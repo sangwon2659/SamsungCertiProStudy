@@ -11,6 +11,9 @@
 - Deque
 - Map
 - Set
+- Trie
+- Binary Tree
+- Binary Search Tree
 
 ### Algorithms
 - Recursion
@@ -29,6 +32,10 @@
 - Topological Sorting
 - Maximum Flow
 - Bipartite Match
+- Bubble Sort
+- Selection Sort
+- Merge Sort
+- Greedy
 
 ### Tips:
 - for문 같은 곳에서 i++ 대신 ++i 사용하기 & register 변수로 사용하기

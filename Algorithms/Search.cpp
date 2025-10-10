@@ -38,40 +38,6 @@ void binarySearch(int* arr, int low, int high, int target)
 
 ////////// Binary Search End //////////
 
-////////// DFS Search Start //////////
-
-////////// DFS Search End //////////
-
-////////// BFS Search Start //////////
-
-////////// BFS Search End //////////
-
-////////// Parametric Search Start //////////
-
-////////// Parametric Search End //////////
-
 int main()
 {
-    ////////// Binary Search Start //////////
-
-    ////////// Binary Search End //////////
-
-    ////////// DFS Search Start //////////
-
-    ////////// DFS Search End //////////
-
-    ////////// BFS Search Start //////////
-
-    ////////// BFS Search End //////////
-
-    ////////// Parametric Search Start //////////
-
-    ////////// Parametric Search End //////////
 }
-
-/*
-- Binary
-- DFS
-- BFS
-- Parametric
-*/

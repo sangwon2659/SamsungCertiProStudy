@@ -16,7 +16,7 @@ const int INF = 1 << 30;
 // N: Number of Nodes
 // AdjList: Adjacent List (0 -> N-1까지 노드별로 {adjNode, edgeWeight} 구조의 Pair들이 들어있음)
 // S: Start Node
-vector<ll> dijkstra(int N, int S, vector<vector<pair<int, int>>> vAdjList)
+vector<ll> dijkstra(int N, int S, vector<vector<pair<int, int>>> vAdjNodeList)
 {
     // Priority Queue는 다음 구조
     //    class T,                        // the type of stored elements
@@ -41,7 +41,7 @@ vector<ll> dijkstra(int N, int S, vector<vector<pair<int, int>>> vAdjList)
         pq.pop();
 
         // 뽑은 노드가 갈 수 있는 adjNode 중 더 효율적인 경로가 있는지 탐색하기
-        for (auto [adjNode, edgeWeight] : vAdjList[node])
+        for (auto [adjNode, edgeWeight] : vAdjNodeList[node])
         {
             if (dist + edgeWeight < vDist[adjNode])
             {
@@ -59,12 +59,12 @@ vector<ll> dijkstra(int N, int S, vector<vector<pair<int, int>>> vAdjList)
 int main()
 {
     int N = 6;
-    vector<vector<pair<int,int>>> vAdjList(N);
+    vector<vector<pair<int,int>>> vAdjNodeList(N);
     // 여기서 [=]를 하면 Capture by Value라서 vAdjList의 값이 실제로 바뀌지 않음
     // 꼭 [&]를 해줘야 Capture by Reference라서 vAdjList의 값이 실제로 반영됨
     auto addEdge = [&](int u, int v, int w) {
-        vAdjList[u].push_back({v,w});
-        vAdjList[v].push_back({u,w}); // comment this line if directed
+        vAdjNodeList[u].push_back({v,w});
+        vAdjNodeList[v].push_back({u,w}); // comment this line if directed
     };
     addEdge(0,1,7);
     addEdge(0,2,9);
@@ -77,7 +77,7 @@ int main()
     addEdge(4,5,9);
 
     int S = 0;
-    vector<ll> result = dijkstra(N, S, vAdjList);
+    vector<ll> result = dijkstra(N, S, vAdjNodeList);
 
     for (auto it : result)
     {

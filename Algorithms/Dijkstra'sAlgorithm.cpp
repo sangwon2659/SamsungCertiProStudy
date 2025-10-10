@@ -2,6 +2,7 @@
 // 시작점에서부터 갈 수 있는 모든 노드의 가장 짧은 경로를 비교하면서 PQ에 넣어서 Greedy하게 Global Optimal을 탐색함
 // Start Node가 있어야 하고 edgeWeight가 음수인 경우가 있으면 작동하지 않는다
 // Negative Cycle은 음수의 edgeWeight가 있어야만 발생할 수 있는 경우이기에 Dijkstra의 제한조건으로 명시하지 않는다
+// Dijkstra는 Directed Graph용이지만 Undirected의 경우에도 분기를 통해 Directed Graph로 만들어 줄 수 있다
 
 #include <iostream>
 #include <vector>

@@ -1,5 +1,5 @@
 // Bellman-Ford Algorithm
-// 시작점에서부터 갈 수 있는 모든 노드의 최단거리를 탐색함
+// 시작점에서부터 갈 수 있는 모든 노드의 최단거리를 탐색함 (Single Source Shortest Path)
 // edgeWeight가 음수인 경우도 허용함
 // Negative Cycle이 존재하는지도 감지 가능함
 

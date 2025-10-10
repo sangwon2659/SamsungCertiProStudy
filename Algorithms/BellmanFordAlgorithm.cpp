@@ -15,7 +15,7 @@ const int INF = 1 << 30;
 // N: Number of Nodes
 // vEdgeList: 간선 리스트 (u, v, w) 형태로 저장됨 (u에서 v로 가는 weight w의 간선)
 // S: Start Node
-vector<ll> bellmanford(int N, int S, const vector<tuple<int,int,int>>& vEdgeList)
+vector<ll> bellmanFord(int N, int S, const vector<tuple<int,int,int>>& vEdgeList)
 {
     // 거리 배열 초기화 (모든 노드를 INF로 설정)
     vector<ll> vDist(N, INF);
@@ -81,7 +81,7 @@ int main()
     addEdge(4, 3, 7);
 
     int S = 0; // 시작 노드 (0번)
-    vector<ll> result = bellmanford(N, S, vEdgeList);
+    vector<ll> result = bellmanFord(N, S, vEdgeList);
 
     cout << "Shortest distances from node " << S << ":" << endl;
     for (int i = 0; i < N; i++)

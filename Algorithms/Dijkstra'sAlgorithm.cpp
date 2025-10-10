@@ -1,6 +1,6 @@
 // Dijkstra's Algorithm
 // 시작점에서부터 갈 수 있는 모든 노드의 가장 짧은 경로를 비교하면서 PQ에 넣어서 Greedy하게 Global Optimal을 탐색함
-// Start Node가 있어야 하고 edgeWeight가 음수인 경우가 있으면 안된다
+// Start Node가 있어야 하고 edgeWeight가 음수인 경우나 Negative Cycle이 있으면 작동하지 않는다
 
 #include <iostream>
 #include <vector>

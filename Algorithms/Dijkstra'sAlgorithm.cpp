@@ -60,19 +60,19 @@ int main()
     vector<vector<pair<int,int>>> vAdjList(N);
     // 여기서 [=]를 하면 Capture by Value라서 vAdjList의 값이 실제로 바뀌지 않음
     // 꼭 [&]를 해줘야 Capture by Reference라서 vAdjList의 값이 실제로 반영됨
-    auto add_edge = [&](int u, int v, int w) {
+    auto addEdge = [&](int u, int v, int w) {
         vAdjList[u].push_back({v,w});
         vAdjList[v].push_back({u,w}); // comment this line if directed
     };
-    add_edge(0,1,7);
-    add_edge(0,2,9);
-    add_edge(0,5,14);
-    add_edge(1,2,10);
-    add_edge(1,3,15);
-    add_edge(2,3,11);
-    add_edge(2,5,2);
-    add_edge(3,4,6);
-    add_edge(4,5,9);
+    addEdge(0,1,7);
+    addEdge(0,2,9);
+    addEdge(0,5,14);
+    addEdge(1,2,10);
+    addEdge(1,3,15);
+    addEdge(2,3,11);
+    addEdge(2,5,2);
+    addEdge(3,4,6);
+    addEdge(4,5,9);
 
     int S = 0;
     vector<ll> result = dijkstra(N, S, vAdjList);

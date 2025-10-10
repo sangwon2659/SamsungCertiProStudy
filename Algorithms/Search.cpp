@@ -1,8 +1,6 @@
 #include <iostream>
 using namespace std;
 
-////////// Binary Search Start //////////
-
 #define MAX_M 100
  
 int T;    // # of test case
@@ -35,8 +33,6 @@ void binarySearch(int* arr, int low, int high, int target)
         return;
     }
 }
-
-////////// Binary Search End //////////
 
 int main()
 {

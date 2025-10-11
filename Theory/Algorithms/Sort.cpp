@@ -1,3 +1,13 @@
+/*
+Contains the following Data Structures:
+- Insertion Sort
+- Quick Sort
+- Counting Sort
+- Bubble Sort
+- Merge Sort
+- Topological Sort
+*/
+
 #include <iostream>
 using namespace std;
 
@@ -124,6 +134,92 @@ void executeCountingSort(int input_size)
     }
 }
 
+////////// CountingSort End //////////
+
+////////// BubbleSort Start //////////
+
+void bubbleSort()
+{
+    int i, j, temp;
+    for (i = 0; i < input_size - 1; i++)
+        for (j = 0; j < input_size - i - 1; j++)
+            if (input[j] > input[j + 1])
+            {
+                temp = input[j]; input[j] = input[j + 1]; input[j + 1] = temp;
+            }
+}
+
+////////// BubbleSort End //////////
+
+////////// MergeSort Start //////////
+
+void merge(int l, int m, int r)
+{
+    int n1 = m - l + 1, n2 = r - m;
+    int L[n1], R[n2];
+    for (int i = 0; i < n1; i++) L[i] = input[l + i];
+    for (int i = 0; i < n2; i++) R[i] = input[m + 1 + i];
+
+    int i = 0, j = 0, k = l;
+    while (i < n1 && j < n2) input[k++] = (L[i] <= R[j]) ? L[i++] : R[j++];
+    while (i < n1) input[k++] = L[i++];
+    while (j < n2) input[k++] = R[j++];
+}
+
+void mergeSort(int l, int r)
+{
+    if (l < r)
+    {
+        int m = l + (r - l) / 2;
+        mergeSort(l, m);
+        mergeSort(m + 1, r);
+        merge(l, m, r);
+    }
+}
+
+////////// MergeSort End //////////
+
+////////// TopologicalSort Start //////////
+
+vector<int> adj[MAX_NUM];
+int indegree[MAX_NUM];
+
+void topologicalSort(int n)
+{
+    queue<int> q;
+    for (int i = 0; i < n; i++)
+        if (indegree[i] == 0) q.push(i);
+
+    cout << "Topological Sort: ";
+    while (!q.empty())
+    {
+        int u = q.front(); q.pop();
+        cout << u << " ";
+        for (int v : adj[u])
+        {
+            indegree[v]--;
+            if (indegree[v] == 0) q.push(v);
+        }
+    }
+    cout << endl;
+}
+
+void prepareDAGFromInput()
+{
+    fill(indegree, indegree + MAX_NUM, 0);
+    for (int i = 0; i < MAX_NUM; i++) adj[i].clear();
+
+    for (int i = 0; i < input_size - 1; i++)
+    {
+        int u = input[i];
+        int v = input[i + 1];
+        adj[u].push_back(v);
+        indegree[v]++;
+    }
+}
+
+////////// TopologicalSort End //////////
+
 void printInput()
 {
     int i;
@@ -151,17 +247,36 @@ int main()
     input[9] = 0;
 
     /*
+    // Insertion Sort
     printInput();
     insertionSort();
     printInput();
 
+    // Quick Sort
     printInput();
     quickSort(0, input_size - 1);
     printInput();
+
+    // Counting Sort
+    printInput();
+    calculateDigitNumber(input_size);
+    executeCountingSort(input_size);
+    printInput();
+
+    // Bubble Sort
+    printInput();
+    bubbleSort();
+    printInput();
+
+    // Merge Sort
+    printInput();
+    mergeSort(0, input_size - 1);
+    printInput();
     */
 
-   printInput();
-   calculateDigitNumber(input_size);
-   executeCountingSort(input_size);
-   printInput();
+    // Topological Sort
+    printInput();
+    prepareDAGFromInput();
+    topologicalSort(MAX_NUM); // topological sort of DAG nodes from input
+    printInput();
 }

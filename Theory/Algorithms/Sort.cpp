@@ -1,5 +1,5 @@
 /*
-Contains the following Data Structures:
+Contains the following Sorting Algorithms:
 - Insertion Sort
 - Quick Sort
 - Counting Sort

@@ -5,6 +5,7 @@ Contains the following Sorting Algorithms:
 - Counting Sort
 - Bubble Sort
 - Merge Sort
+- Selection Sort
 - Topological Sort
 */
 
@@ -218,6 +219,38 @@ void prepareDAGFromInput()
     }
 }
 
+////////// SelectionSort Start //////////
+// Selection Sort는 매번 남은 배열에서 최소값을 찾아
+// 현재 위치와 Swap하는 방식으로 정렬하는 알고리즘이다
+// 시간복잡도 Best O(n^2) Worst O(n^2)
+// Swap 횟수가 적다는 특징이 있음
+
+void selectionSort()
+{
+    int i, j, min_idx, temp;
+
+    for (i = 0; i < input_size - 1; i++)
+    {
+        // i번째 위치에 올 최소값을 찾음
+        min_idx = i;
+        for (j = i + 1; j < input_size; j++)
+        {
+            if (input[j] < input[min_idx])
+                min_idx = j;
+        }
+
+        // 최소값과 현재 위치를 Swap
+        if (min_idx != i)
+        {
+            temp = input[i];
+            input[i] = input[min_idx];
+            input[min_idx] = temp;
+        }
+    }
+}
+
+////////// SelectionSort End //////////
+
 ////////// TopologicalSort End //////////
 
 void printInput()
@@ -271,6 +304,11 @@ int main()
     // Merge Sort
     printInput();
     mergeSort(0, input_size - 1);
+    printInput();
+
+    // Selection Sort
+    printInput();
+    selectionSort();
     printInput();
     */
 

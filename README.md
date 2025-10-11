@@ -15,28 +15,29 @@
 
 ### Algorithms
 - Insertion Sort
-- Merge Sort
-- Selection Sort
 - Quick Sort
-- Bubble Sort
 - Counting Sort
-- Topologial Sort
+- Bubble Sort
+- Merge Sort
+- Topological Sort
+
 - Binary Search
 - Parametric Search
-- Recursion
+
 - DFS & BFS
-- Memoization & Tabulation
-- Combination & Permutation
 - Dijkstra
 - BellmanFord
 - Floyd Warshall
+
+- Memoization & Tabulation
+- Combination & Permutation
 - Plane Sweeping
 - Minimum Spanning Tree
-- Topological Sorting
 - Maximum Flow
 - Bipartite Match
 - KnuthMorrisPratt
 - UnionFind
+- Recursion
 
 ### Tips:
 - for문 같은 곳에서 i++ 대신 ++i 사용하기 & register 변수로 사용하기

@@ -34,6 +34,8 @@ void binarySearch(int* arr, int low, int high, int target)
     }
 }
 
+
+
 int main()
 {
 }

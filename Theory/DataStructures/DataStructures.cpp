@@ -419,6 +419,107 @@ void postOrder(int root)
 // For every node N, all values in the left subtree are less than N's value
 // and all values in the right subtree are greater than N's value
 
+////////// Trie Start //////////
+// A Trie (prefix tree) is a tree-based data structure used to store strings efficiently,
+// especially when we need fast prefix searches or autocomplete functionality
+// Each node in a Trie represents a character of a string
+// The path from the root to a node represents a prefix (or full word)
+/*
+(root)
+ ├── a
+ │   └── p
+ │       ├── p
+ │       │   ├── l ── e
+ │       │   └── (end)
+ │       └── e
+ └── b
+     └── a
+         ├── t
+         └── l ── l
+*/
+// Advantage: Efficient and fast prefix lookups
+//            Avoids redundant storage of shared prefixes
+// Disadvantage: Uses more memory
+//               Takes more time for insertion compared to hash
+
+// Trie Data Structure
+// 문자열 집합에서 빠르게 삽입, 검색, 접두어 탐색을 수행함
+// 각 노드가 알파벳 하나를 나타내며, 문자열의 경로를 따라 이동하며 탐색
+
+struct TrieNode {
+    // This declaration does not mean TrieNode is declared within TrieNode
+    // but it is declaring 26 pointers to child nodes
+    // They act as 26 possible outgoing links (for each letter 'a' - 'z')
+    // Each link can be nullptr (no child for that letter) or it can point to another Trie that continues the word
+    TrieNode* children[26];
+    bool isEndOfWord;
+
+    // 이걸 해주는 이유는 TrieNode* children[26];으로는 nullptr로 초기화가 안되기 때문
+    // 밑의 함수는 TrieNode를 처음 선언할 때 그리고 Dynamic하게 new TrieNode();을 선언할 때 실행된다
+    TrieNode() {
+        isEndOfWord = false;
+        for (int i = 0; i < 26; i++)
+            children[i] = nullptr;
+    }
+};
+
+class Trie {
+private:
+    // 포인터로 선언하는 이유는 주소를 직접 조회해서 실제 Trie가 깊은복사되는 경우를 방지하기 위해
+    TrieNode* root;
+
+public:
+    // Trie 객체를 선언하면 Execute되는 함수
+    Trie() { root = new TrieNode(); }
+
+    // Insert a word into the Trie
+    void insert(const string& word) {
+        TrieNode* node = root;
+        for (char c : word) {
+            int idx = c - 'a';
+            // Checks if node->children[idx] pointer is nullptr(meaning no value was assigned) or not
+            // ->는 struct의 pointer member variable을 가르키는 것
+            // *node->children[idx]는 그 해당 pointer가 가르키는 주소의 값이 반환됨 (이 경우에는 Letter가 반환됨)
+            // 만약 node->children[idx]가 nullptr이라면 new TrieNode()를 해서 새로 만들어주는 과정이 필요함
+            if (!node->children[idx])
+                node->children[idx] = new TrieNode();
+            node = node->children[idx];
+        }
+        // Child Node를 다 채운 후에는 isEndOfWord를 True로 바꿔주면 됨
+        node->isEndOfWord = true;
+    }
+
+    // Search for a complete word
+    bool search(const string& word) {
+        TrieNode* node = root;
+        // 해당 Letter의 조합이 있으면 Child Node를 계속 타고 들어가면서 그 조합이 완성될 것 
+        for (char c : word) {
+            int idx = c - 'a';
+            if (!node->children[idx])
+                return false;
+            node = node->children[idx];
+        }
+        // 조합은 완성되었지만 그게 단어로 저장이 되어있는지 보려면 마지막 Child Node의 isEndOfWord member variable을 확인한다
+        return node->isEndOfWord;
+    }
+
+    // Check if any word starts with the given prefix
+    bool startsWith(const string& prefix) {
+        TrieNode* node = root;
+        for (char c : prefix) {
+            int idx = c - 'a';
+            if (!node->children[idx])
+                return false;
+            node = node->children[idx];
+        }
+        // if (!node->children[idx]) 조건문에 걸린 경우가 없기 때문에 해당 Prefix는 있는 것으로 판정할 수 있다
+        // 따라서 True를 반환하면 된다
+        return true;
+    }
+};
+
+////////// Trie End //////////
+
 ////////// Graph Start //////////
 // Reference 코드에서의 Graph는 다수의 Vertex를 가지고 있고
 // 각 Vertex는 단순 연결 리스트 구조의 GraphAdjList를 가지고 있어서
@@ -1224,6 +1325,22 @@ int main()
     printf("\n");
     
     ////////// Tree End //////////
+
+    ////////// Trie Start //////////
+    
+    Trie trie;
+    trie.insert("apple");
+    trie.insert("app");
+
+    // All outputs after cout << boolalpha are either 'True' or 'False' instead of '1' or '0'
+    cout << boolalpha;
+    cout << trie.search("app") << "\n";        // true
+    cout << trie.search("apple") << "\n";      // true
+    cout << trie.search("appl") << "\n";       // false
+    cout << trie.startsWith("ap") << "\n";     // true
+    cout << trie.startsWith("ba") << "\n";     // false
+
+    ////////// Trie End //////////
 
     ////////// Graph Start //////////
 

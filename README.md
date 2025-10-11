@@ -6,12 +6,12 @@
 - Priority Queue
 - Hash
 - Tree (+ Binary Search Tree)
+- Trie
 - Graph
 - Linked List
 - Deque
 - Map
 - Set
-- Trie
 
 ### Algorithms
 - Insertion Sort
@@ -20,6 +20,7 @@
 - Bubble Sort
 - Merge Sort
 - Topological Sort
+- Selection Sort
 
 - Binary Search
 - Parametric Search

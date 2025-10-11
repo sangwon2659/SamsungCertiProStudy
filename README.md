@@ -14,26 +14,29 @@
 - Trie
 
 ### Algorithms
-- Recursion
 - Insertion Sort
+- Merge Sort
+- Selection Sort
 - Quick Sort
+- Bubble Sort
 - Counting Sort
+- Topologial Sort
 - Binary Search
-- DFS & BFS Search
 - Parametric Search
-- Dynamic Programming
+- Recursion
+- DFS & BFS
+- Memoization & Tabulation
 - Combination & Permutation
 - Dijkstra
+- BellmanFord
 - Floyd Warshall
 - Plane Sweeping
 - Minimum Spanning Tree
 - Topological Sorting
 - Maximum Flow
 - Bipartite Match
-- Bubble Sort
-- Selection Sort
-- Merge Sort
-- Greedy
+- KnuthMorrisPratt
+- UnionFind
 
 ### Tips:
 - for문 같은 곳에서 i++ 대신 ++i 사용하기 & register 변수로 사용하기

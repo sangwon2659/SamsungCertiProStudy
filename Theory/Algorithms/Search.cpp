@@ -1,3 +1,9 @@
+/*
+Contains the following Search Algorithms:
+- Binary Search
+- Parametric Search
+*/
+
 #include <iostream>
 using namespace std;
 

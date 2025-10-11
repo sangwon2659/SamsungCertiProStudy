@@ -10,6 +10,7 @@ Contains the following Data Structures:
 - Deque
 - Map
 - Set
+- Trie
 */
 
 #include <iostream>

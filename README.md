@@ -5,15 +5,13 @@
 - Queue
 - Priority Queue
 - Hash
-- Tree
+- Tree (+ Binary Search Tree)
 - Graph
 - Linked List
 - Deque
 - Map
 - Set
 - Trie
-- Binary Tree
-- Binary Search Tree
 
 ### Algorithms
 - Recursion

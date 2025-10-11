@@ -4,7 +4,7 @@ Contains the following Data Structures:
 - Queue
 - Priority Queue
 - Hash
-- Tree
+- Tree (+ Binary Search Tree)
 - Graph
 - Linked List
 - Deque
@@ -412,6 +412,12 @@ void postOrder(int root)
 }
 
 ////////// Tree End //////////
+// Post Script:
+// Binary Tree is a tree structure where each node has two children at the most called left and right
+// Binary Tree does not have any constraints regarding the values of the child nodes
+// Binary Search Tree on the other hand is a special type of binary tree where,
+// For every node N, all values in the left subtree are less than N's value
+// and all values in the right subtree are greater than N's value
 
 ////////// Graph Start //////////
 // Reference 코드에서의 Graph는 다수의 Vertex를 가지고 있고

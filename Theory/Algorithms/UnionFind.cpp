@@ -1,13 +1,24 @@
+/*
+Union-Find, also called Disjoint Set Union (DSU), is a data structure that efficiently keeps track of a collection of disjoint (non-overlapping) sets.
+It’s especially useful when you need to:
+- Group items into sets
+- Quickly check whether two items belong to the same set
+- Efficiently merge two sets together
+*/
+
 #include <iostream>
 #include <vector>
 
 class UnionFind {
 private:
+    // Parent라고 하는 Root 개념의 Vector가 있고, Rank라고 하는 Tree의 Rough Height를 보여주는 개념이 있다
+    // Rank는 Optimization에 사용됨
     std::vector<int> parent;
-    std::vector<int> rank; // used for union by rank optimization
+    std::vector<int> rank;
 
 public:
     // Constructor: create n disjoint sets (0 to n-1)
+    // Disjoint set는 말 그대로 연결성이 없는 집합이다
     UnionFind(int n) {
         parent.resize(n);
         rank.resize(n, 0);
@@ -19,6 +30,7 @@ public:
     int find(int x) {
         if (parent[x] != x) {
             // Path compression: make the parent of x directly the root
+            // 이렇게 Recursive하게 Parent를 같은 Root로 설정함으로써 Compress됨
             parent[x] = find(parent[x]);
         }
         return parent[x];
@@ -37,6 +49,8 @@ public:
             parent[rootX] = rootY;
         } else if (rank[rootX] > rank[rootY]) {
             parent[rootY] = rootX;
+        // Rank is a rough height of the tree
+        // The rank of the tree should be increased when two sets of the same height are merged
         } else {
             parent[rootY] = rootX;
             rank[rootX]++;

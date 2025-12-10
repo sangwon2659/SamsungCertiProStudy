@@ -113,6 +113,8 @@ int cost(int B, int sCity, int eCity, int M, int mCity[], int mTime[]) {
         }
     }
 
+    // 전기차에 대한 Dijakstra
+    
     // 최대 도시 개수 & 주어질 수 있는 배터리 최대 용량의 dist 2D Array 선언
     // MAX_B가 아닌 MAX_B + 1인 이유는 배터리 값이 1~300이기 때문
     int dist[MAX_N][MAX_B + 1];

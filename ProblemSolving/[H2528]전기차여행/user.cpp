@@ -4,6 +4,7 @@
 #include <queue>
  
 using namespace std;
+
  
 constexpr int MAXN = 505;                       // 도시의 최대 개수 +5
 constexpr int MAXR = 7005;                      // 도로의 최대 개수 +5

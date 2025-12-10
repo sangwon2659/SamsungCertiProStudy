@@ -1,163 +1,205 @@
-//user.cpp
 #include <unordered_map>
 #include <vector>
 #include <queue>
- 
+#include <cstring>
+
 using namespace std;
 
- 
-constexpr int MAXN = 505;                       // 도시의 최대 개수 +5
-constexpr int MAXR = 7005;                      // 도로의 최대 개수 +5
-constexpr int MAXB = 305;                       // 배터리 최대 용량 +5
-constexpr int INF = 1 << 30;
- 
-int idCnt;                                      // 도로의 새로운 ID 부여 변수 (도로의 개수)
-unordered_map<int, int> idMap;                    // 도로의 새로운 ID 부여 mapping hash
- 
-int N;                                          // 도시의 개수
-struct City {
-    int charge;                                 // 시간 당 충전량
-    int spreadT;                                // 전염병이 퍼진 시간
-    vector<int> adj;                          // 도로 ID 리스트 (그래프)
-} cityList[MAXN];
- 
+// 최대 도시 개수
+constexpr int MAX_N = 500;
+// 주어질 수 있는 배터리 최대 용량
+constexpr int MAX_B = 300;
+
+typedef unsigned long long ull;
+
 struct Road {
-    int mId;                                    // mId
-    int s, e;                                   // 출발, 도착 도시 번호
-    int t;                                      // 소요 시간
-    int p;                                      // 전력 소모량
-} roadList[MAXR];
- 
-// dijkstra 변수
-struct Data {
-    int time;                                   // 시간
-    int city;                                   // 도시 번호
-    int battery;                                // 충전 용량
- 
-    bool operator< (const Data& t) const {
-        return time > t.time;
-    }
+    // 도로 ID
+    int id;
+    // 도착도시
+    int to;
+    // 소요시간, 전력소모량
+    int time, power;
 };
- 
-priority_queue<Data> pq;
-int dist[MAXN][MAXB];
- 
-void add(int mId, int sCity, int eCity, int mTime, int mPower);
- 
+
+// 도로 ID를 Indexing해서 출발도시를 찾을 수 있는 저장소
+unordered_map<int, int> Hash;
+// AdjacentNode
+vector<Road> Graph[MAX_N];
+// 도시의 시간당 충전량
+int Charge[MAX_N];
+
+// N: 도시의 개수 mCharge: 시간당 충전량
+// K: 도로 개수 mId: 도로 ID sCity: 출발도시 eCity: 도착도시 mTime: 소요시간 mPower: 전력소모량
+// 1 <= mId[i] <= 1,000,000,000
 void init(int N, int mCharge[], int K, int mId[], int sCity[], int eCity[], int mTime[], int mPower[]) {
-    // 변수 초기화
-    ::N = N;
-    idCnt = 0; idMap.clear();
+    Hash.clear();
     for (int i = 0; i < N; ++i) {
-        cityList[i].adj.clear();
-        cityList[i].charge = mCharge[i];
+        Graph[i].clear();
+        Charge[i] = mCharge[i];
     }
-    for (int i = 0; i < K; ++i) add(mId[i], sCity[i], eCity[i], mTime[i], mPower[i]);
+    for (int i = 0; i < K; ++i) {
+        // Adjacent Node에 정보 저장
+        Graph[sCity[i]].push_back({ mId[i], eCity[i], mTime[i], mPower[i] });
+        // Hash에 도시 ID 저장
+        Hash[mId[i]] = sCity[i];
+    }
 }
- 
+
 void add(int mId, int sCity, int eCity, int mTime, int mPower) {
-    // 새로운 ID 부여 및 도로 정보 저장
-    int newID = idCnt++;
-    idMap[mId] = newID;
-    roadList[newID] = { mId, sCity, eCity, mTime, mPower };
- 
-    // 그래프 업데이트 (단방향 그래프)
-    cityList[sCity].adj.push_back(newID);
+    // 도로 추가
+    Graph[sCity].push_back({ mId, eCity, mTime, mPower });
+    // 도시 ID를 기준으로 출발도시 추가
+    Hash[mId] = sCity;
 }
- 
+
 void remove(int mId) {
-    // 그래프에서 도로 삭제
-    int rId = idMap[mId];
-    int sCity = roadList[rId].s;
-    vector<int>& vec = cityList[sCity].adj;
-    for (int i = 0; i < vec.size(); ++i) {
-        if (vec[i] == rId) {
-            vec[i] = vec.back();
-            vec.pop_back();
+    // 도로 ID를 기준으로 Hash에서 출발도시 탐색
+    int sCity = Hash[mId];
+
+    // Adjacent Node에서 지우기
+    for (int i = 0; i < Graph[sCity].size(); ++i) {
+        if (mId == Graph[sCity][i].id) {
+            Graph[sCity].erase(Graph[sCity].begin() + i);
             return;
         }
     }
 }
- 
+
+// B: 배터리 최대 용량
+// sCity: 출발도시 eCity: 도착도시 M: 바이러스 개수 mCity: 바이러스 전염 시작도시 mTime: 바이러스 전염 시작시간
 int cost(int B, int sCity, int eCity, int M, int mCity[], int mTime[]) {
-    // 전염병이 도시에 퍼지는 시간을 구하기 위한 dijkstra 수행
-    pq = {};
-    for (int i = 0; i < MAXN; ++i) cityList[i].spreadT = INF;
- 
-    // 초기 전염병을 PQ에 삽입
+
+    // 바이러스에 대한 Dijakstra
+
+    // 최단경로를 저장하기 위한 저장소 (크기: 최대 도시 개수)
+    int virusDist[MAX_N];
+    // 초기화 (memset은 바이트 단위로 값을 채우는 함수, 따라서 0x7f 즉 0b0111 1111을 넣는 건 매우 큰 값으로 초기화하는 것)
+    memset(virusDist, 0x7f, sizeof(virusDist));
+
+    // Min-Heap
+    priority_queue<int, vector<int>, greater<int>> virusPq;
+
     for (int i = 0; i < M; ++i) {
-        pq.push({ mTime[i], mCity[i] });
-        cityList[mCity[i]].spreadT = mTime[i];
+        // virus는 항상 Time = 0부터 시작하는 것이 아니기 때문에 mTime[i]를 입력
+        virusDist[mCity[i]] = mTime[i];
+        // 바이러스 전염 시작 시간 | 바이러스 전염 시작 도시를 Packing해서 virusPq에 emplace
+        // 이렇게 하면 Byte를 한번에 전체 비교할 수 있기 때문에 priority_queue처럼 지속적인 비교가 필요할 때 훨씬 유리
+        virusPq.emplace(mTime[i] << 16 | mCity[i]);
     }
- 
-    while (!pq.empty()) {
-        Data d = pq.top();
-        pq.pop();
-        int curT = d.time, cur = d.city;
-        if (cityList[cur].spreadT < curT) continue;          // 이미 전염된 경우
- 
-        for (int rId : cityList[cur].adj) {
-            int next = roadList[rId].e;                     // 다음 이동 도시
-            int nextT = curT + roadList[rId].t;             // 다음 도시까지 전파되는 시간
-            if (cityList[next].spreadT > nextT) {
-                cityList[next].spreadT = nextT;
-                pq.push({ nextT, next });
+
+    while (!virusPq.empty()) {
+        // Parse virusPq
+        // 경과한 시간
+        int time = virusPq.top() >> 16;
+        // 도시
+        int u = virusPq.top() & 0xffff;
+        virusPq.pop();
+
+        // 이미 더 짧은 시간에 도달할 수 있는 경로가 탐색되었다면 continue
+        if (virusDist[u] < time) continue;
+
+        // 아니라면 Adjacent List에서 더 짧은 시간에 가능한지 새로 탐색
+        for (auto val : Graph[u]) {
+            // 근접 도시를 가는 데 걸리는 시간
+            int v = val.to;
+            // 현재까지의 시간 + 근접 도시를 가는 데 걸리는 시간
+            int nextTime = time + val.time;
+
+            // 만약 이 합이 기존에 저장해놓은 시간보다 짧다면 Update하고 virusPq에 추가
+            if (virusDist[v] > nextTime) {
+                virusDist[v] = nextTime;
+                virusPq.emplace(nextTime << 16 | v);
             }
         }
     }
- 
-    // dijkstra를 사용하여 전기차가 eCity까지 갈 수 있는 최단 시간 경로 구하기
-    pq = {};
-    for (int i = 0; i < N; ++i)
-        for (int j = 0; j < MAXB; ++j)
-            dist[i][j] = INF;
- 
-    pq.push({ 0, sCity, B });                   // { 소요 시간, 도시, 남은 충전 용량 }
+
+    // 최대 도시 개수 & 주어질 수 있는 배터리 최대 용량의 dist 2D Array 선언
+    // MAX_B가 아닌 MAX_B + 1인 이유는 배터리 값이 1~300이기 때문
+    int dist[MAX_N][MAX_B + 1];
+    // 초기화 (memset은 바이트 단위로 값을 채우는 함수, 따라서 0x7f 즉 0b0111 1111을 넣는 건 매우 큰 값으로 초기화하는 것)
+    memset(dist, 0x7f, sizeof(dist));
+
+    // Min-Heap
+    priority_queue<ull, vector<ull>, greater<ull>> carPq;
+
+    // 전기차는 항상 Time = 0부터 시작하기 때문에 초기값을 0으로 설정
     dist[sCity][B] = 0;
- 
-    while (!pq.empty()) {
-        Data d = pq.top();
-        pq.pop();
-        int curT = d.time, cur = d.city, curB = d.battery;  // 소요 시간, 도시, 충전 용량
-        if (dist[cur][curB] < curT) continue;                // 이미 방문한 적이 있는 경우
- 
-        // 전기차가 eCity에 도달한 경우 최소 시간 반환
-        if (cur == eCity) return curT;
- 
-        for (int rId : cityList[cur].adj) {
-            int next = roadList[rId].e;
-            int p = roadList[rId].p;
- 
-            // 배터리가 부족한 경우
-            if (curB < p) continue;
- 
-            // 배터리가 충분한 경우 도로 지나가기
-            int nextT = curT + roadList[rId].t;
-            if (cityList[next].spreadT <= nextT) continue;       // nexT에 이미 도시가 전염 된 경우
- 
-            int nextB = curB - p;
-            if (dist[next][nextB] > nextT) {
-                // pruning : 불필요한 노드는 방문하지 않도록 dist 배열 값 업데이트
-                int b = nextB;
-                while (b >= 0 && dist[next][b] >= nextT) dist[next][b--] = nextT;
-                pq.push({ nextT, next, nextB });
+    // 0의 Time | 시작도시 | 배터리 정보 넣기를 Packing해서 carPq에 emplace
+    // 이렇게 하면 Byte를 한번에 전체 비교할 수 있기 때문에 priority_queue처럼 지속적인 비교가 필요할 때 훨씬 유리
+    carPq.emplace(sCity << 16 | B);
+
+    while (!carPq.empty()) {
+        // Parse carPq
+        // 경과한 시간
+        int time = carPq.top() >> 32;
+        // 도시
+        int u = (carPq.top() >> 16) & 0xffff;
+        // 배터리 잔량
+        int battery = carPq.top() & 0xffff;
+        carPq.pop();
+
+        // 이미 더 짧은 시간에 도달할 수 있는 경로가 탐색되었다면 continue
+        if (dist[u][battery] < time) continue;
+
+        // 도착했다면 time을 return
+        if (u == eCity) return time;
+
+        // 아니라면 Adjacent List에서 더 짧은 시간에 가능한지 새로 탐색
+        for (auto val : Graph[u]) {
+            // 전력소모량 대비 배터리가 남아있는 경우 if문 진입
+            if (battery >= val.power) {
+                // 근접 도시를 가는 데 걸리는 시간
+                int v = val.to;
+                // 현재까지의 시간 + 근접 도시를 가는 데 걸리는 시간
+                ull nextTime = time + val.time;
+
+                // 만약 이 합이 기존에 저장해놓은 시간보다 길다면 가볼 필요가 없으니까 continue
+                if (virusDist[v] <= nextTime) continue;
+
+                // 배터리 소모량 반영
+                int nextBattery = battery - val.power;
+
+                if (dist[v][nextBattery] > nextTime) {
+                    // 어떤 도시를 v라는 시간에 nextBattery를 가지고 방문할 수 있다면
+                    // 그보다 낮은 nextBattery를 가지고 방문하는 경우의 수는 다 지우는 것
+                    // 어차피 의미가 없기에
+                    for (int i = nextBattery; i >= 0; --i) {
+                        if (dist[v][i] < nextTime) break;
+                        dist[v][i] = nextTime;
+                    }
+
+                    // carPq에 추가
+                    carPq.emplace(nextTime << 32 | v << 16 | nextBattery);
+                }
             }
         }
- 
-        // cur에서 배터리를 충전하는 경우
-        if (curB < B) {
-            // 시간을 1 증가시키고 충전 수행
-            int nextT = curT + 1;
-            if (cityList[cur].spreadT <= nextT) continue;        // 도시가 전염 된 경우
- 
-            int nextB = min(curB + cityList[cur].charge, B);
-            if (dist[cur][nextB] > nextT) {
-                // pruning : 불필요한 노드는 방문하지 않도록 dist 배열 값 업데이트
-                int b = nextB;
-                while (b >= 0 && dist[cur][b] >= nextT) dist[cur][b--] = nextT;
-                pq.push({ nextT, cur, nextB });
+
+        if (battery < B) {
+            // 충전을 하면 1시간이 흐르기 때문에 +1
+            ull nextTime = time + 1;
+
+            // 기존의 가장 짧은 시간 대비 충전 후 시간이 아직 짧을 경우에만 고려
+            if (virusDist[u] > nextTime) {
+                int nextBattery = battery + Charge[u];
+
+                // 배터리 최대 용량까지만 충전 (시간당 충전량이 도시별로 다르기 때문에)
+                if (nextBattery > B) nextBattery = B;
+
+                if (dist[u][nextBattery] > nextTime) {
+                    // 어떤 도시를 v라는 시간에 nextBattery를 가지고 방문할 수 있다면
+                    // 그보다 낮은 nextBattery를 가지고 방문하는 경우의 수는 다 지우는 것
+                    // 어차피 의미가 없기에
+                    for (int i = nextBattery; i >= 0; --i) {
+                        if (dist[u][i] < nextTime) break;
+                        dist[u][i] = nextTime;
+                    }
+
+                    // carPq에 추가
+                    carPq.emplace(nextTime << 32 | u << 16 | nextBattery);
+                }
             }
         }
     }
-    return -1;          // 전기차가 eCity에 도달하지 못하는 경우
+
+    return -1;
 }
